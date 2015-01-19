@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import math
+import random
 
 def readdata(filename = "assign1_data.txt"):
 	dataset = pd.read_csv(filename, delimiter = r'\s+')
@@ -13,7 +14,7 @@ def costFunction(X, Y, Theta):
 	J = diff.T * diff /(2*m) 
 	return J 
 
-def gradientDescent(X, Y, Theta, epsilon = 1, num_iters = 1000, maxdiff = 10e-30):
+def gradientDescent(X, Y, Theta, epsilon = 1, num_iters = 50000, maxdiff = 10e-5):
 	m = len(Y)
 	x = np.matrix(X)
 	y = np.matrix(Y).T
@@ -23,20 +24,39 @@ def gradientDescent(X, Y, Theta, epsilon = 1, num_iters = 1000, maxdiff = 10e-30
 	for i in xrange(num_iters):
 		theta = theta - epsilon * (x.T) * (x*theta - y) / (2*m)
 		newJ = costFunction(x, y, theta)
-		if abs(newJ - oldJ) < maxdiff:
+		if abs(newJ - oldJ) / newJ < maxdiff:
 			break	
 		oldJ = newJ
+	return theta
+
+def stochasticGradientDescent(X, Y, Theta, epsilon = 1, num_iters = 1000, maxdiff = 10e-5):
+	m = len(Y)
+	x = np.matrix(X)
+	y = np.matrix(Y).T
+	theta = np.matrix(Theta)
+	costFunction(x, y, theta)
+	oldJ = costFunction(x, y, theta)
+	for i in xrange(num_iters):
+		r = random.randrange(x.shape[0])
+		theta = theta - epsilon * (x[r]).T * (x[r]*theta - y[r]) / (2*m)
+		newJ = costFunction(x, y, theta)
+		if abs(newJ - oldJ) / newJ< maxdiff:
+			break
+	oldJ = newJ
 	return theta
 
 
 def main():
 	dataset = readdata()
 	X = dataset.iloc[:, 0:2]
+
 	Y = dataset.iloc[:, 2]
 	Z = dataset.iloc[:, 3]
 	X = sm.add_constant(X)
 	theta = np.ones((X.shape[1], 1))
 	final_theta = gradientDescent(X, Y,theta)
+	print final_theta
+	final_theta = stochasticGradientDescent(X, Y, theta, num_iters = 100000)
 	print final_theta
 
 
