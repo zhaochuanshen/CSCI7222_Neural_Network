@@ -48,11 +48,16 @@ def stochasticGradientDescent(X, Y, Theta, epsilon = 1, num_iters = 1000, batchs
 			start = j * batchsize
 			end = (j + 1) * batchsize
 			theta = theta - epsilon *(  (x[start:end].T)*((x[start:end]*theta > 0) 
-				- y[start:end]) / m )
-			newJ = costFunction(x, y, theta)
-			if newJ < maxdiff:
-				break
+				- y[start:end]) / float( len(y[start:end]) ) )
+		if end != len(y) - 1:
+			theta = theta - epsilon *(  (x[end:].T)*((x[end:]*theta > 0)
+				- y[end:]) / float( len(y[end:]) ) )
+		newJ = costFunction(x, y, theta)
+		if newJ < maxdiff:
+			break
+		
 	return theta
+
 
 def main(argv):
 	dataset = readdata()
