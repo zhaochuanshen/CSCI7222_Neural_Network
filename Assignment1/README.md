@@ -1,3 +1,10 @@
+On Jan 21st, I rewrote Part 3 and 4. Originally I was using logistic regression, but now using perceptron. 
+
+Perceptron is sort of logistic regression, with Heaviside step function. 
+
+Generally speaking, perceptron is slightly worse than logistic regression. 
+
+===
 This is my solution to the first assignment.
 
 Part 1: I used both the sklearn and the statsmodels packages to the least squared
