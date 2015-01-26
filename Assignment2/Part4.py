@@ -23,14 +23,14 @@ def relabeltraindata(data):
 			d[ row[-1] ] = numofelementindict
 			numofelementindict += 1
 			Y[i, d[ row[-1]]] = 1 
-	return ( np.matrix(X), np.matrix(Y) )
+	return ( np.matrix(X), np.matrix(Y) , d)
 
 def main():
 	traindata = readfile.readfile()
-	(trainX, trainY) = relabeltraindata(data = traindata)
+	(trainX, trainY, d) = relabeltraindata(data = traindata)
 	ones = np.ones((trainX.shape[0], 1))
 	trainX = np.hstack((ones, trainX))
-	theta = perceptron.stochasticGradientDescent(trainX, trainY, num_iters = 200)
+	theta = perceptron.stochasticGradientDescent(trainX, trainY, num_iters = 20)
 	
 	testdata = readfile.readfile("digits_test.txt")
 	testX = testdata[:, 0:-1]
@@ -42,7 +42,8 @@ def main():
 		
 	predictY = np.argmax(intermediateY, axis = 1)
 	predictY = np.asarray(predictY).squeeze()	
-	
+	inv_d = {v: k for k, v in d.items()}
+	predictY = [inv_d[i] for i in predictY]
 	resultfile = open('confusionmatrix_test_4.txt','w')
 	cm = str(confusion_matrix(testY, predictY))
 	print cm
