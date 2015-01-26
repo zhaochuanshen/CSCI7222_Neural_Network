@@ -10,18 +10,20 @@ def costFunction(X, Y, Theta):
 
 def stochasticGradientDescent(X, Y, Theta = None, epsilon = 0.1, num_iters = 1000, batchsize = 1, shuffle = True, maxdiff = 10e-5):
 	# this is the so-called stochastic gradient descent
+	# X and Y must be np matrix, with the same number of rows
 	m = len(Y)
-	x = np.matrix(X)
-	y = np.matrix(Y).T
+	x = X
+	y = Y
 	if not Theta:
-		Theta =np.zeros((X.shape[1], 1))
+		Theta =np.zeros((x.shape[1], y.shape[1]))
 	theta = np.matrix(Theta)
-	if shuffle:
-		xy = np.hstack((x, y))
-		np.random.shuffle(xy)
-		x = xy[:, 0:-1]
-		y = xy[:, -1]	
 	for i in xrange(num_iters):
+		if shuffle:
+			xcolsize = x.shape[1]
+			xy = np.hstack((x, y))
+			np.random.shuffle(xy)
+			x = xy[:, 0:xcolsize]
+			y = xy[:, xcolsize:]
 		for j in xrange(len(y) / batchsize):
 			start = j * batchsize
 			end = (j + 1) * batchsize

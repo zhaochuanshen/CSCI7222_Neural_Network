@@ -12,8 +12,8 @@ def relabel(data, target = 2):
 			row[-1] = 1
 		else:
 			row[-1] = 0	
-	X = data[:, 0:-1]
-	Y = data[:, -1]
+	X = np.matrix( data[:, 0:-1] )
+	Y = np.matrix( data[:, -1] ).T
 	return (X, Y)
 
 
@@ -29,18 +29,22 @@ def main():
 	ones = np.ones((testX.shape[0], 1))
 	testX = np.hstack((ones, testX))
 	intermediateY = np.dot(testX, theta) 
-	#note: testX is np array, theta is np matrix
+	#note: testX and theta are np matrices
 	
 	predictY = [1 if item > 0 else 0 for item in intermediateY]
-	resultfile = open('confusionmatrix_test.txt','w')
+	
+	
+	testY = np.asarray(testY).squeeze() 
+	
+	resultfile = open('confusionmatrix_test_2.txt','w')
 	cm = str(confusion_matrix(testY, predictY))
 	print cm
 	resultfile.write(str(confusion_matrix(testY, predictY)))
 	resultfile.write('\n\n\n')
 	resultfile.write(metrics.classification_report(testY, predictY))
 	resultfile.close()	
-	
-	print 'accuracy: %.4f' % ( ( sum( predictY == testY ) / float(len(predictY)))) 	
+
+	print "accuracy, ", sum(predictY == testY ) / float(len(predictY))
 
 if __name__ == "__main__":
 	main()

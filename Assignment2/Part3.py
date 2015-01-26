@@ -14,8 +14,8 @@ def relabel(data, target1 = 0, target2 = 8):
 			row[-1] = 1
 		if row[-1] == target2:
 			row[-1] = 0	
-	X = data[:, 0:-1]
-	Y = data[:, -1]
+	X = np.matrix(data[:, 0:-1])
+	Y = np.matrix(data[:, -1]).T
 	return (X, Y)
 
 def main():
@@ -23,25 +23,28 @@ def main():
 	(trainX, trainY) = relabel(data = traindata)
 	ones = np.ones((trainX.shape[0], 1))
 	trainX = np.hstack((ones, trainX))
-	theta = perceptron.stochasticGradientDescent(trainX, trainY, num_iters = 20)
+	theta = perceptron.stochasticGradientDescent(trainX, trainY, num_iters = 200)
 	
 	testdata = readfile.readfile("digits_test.txt")
 	(testX, testY) = relabel(data = testdata)	
 	ones = np.ones((testX.shape[0], 1))
 	testX = np.hstack((ones, testX))
 	intermediateY = np.dot(testX, theta) 
-	#note: testX is np array, theta is np matrix
+	#note: testX and  theta are np matrices
 	
 	predictY = [1 if item > 0 else 0 for item in intermediateY]
-	resultfile = open('confusionmatrix_test.txt','w')
+	testY = np.asarray(testY).squeeze()
+
+	resultfile = open('confusionmatrix_test_3.txt','w')
 	cm = str(confusion_matrix(testY, predictY))
 	print cm
 	resultfile.write(str(confusion_matrix(testY, predictY)))
 	resultfile.write('\n\n\n')
 	resultfile.write(metrics.classification_report(testY, predictY))
 	resultfile.close()	
-	
-	print 'accuracy: %.4f' % ( ( sum( predictY == testY ) / float(len(predictY)))) 	
+
+	total = sum(predictY == testY )
+	print 'accuracy: %.4f' % ( ( total / float(len(predictY)))) 	
 
 if __name__ == "__main__":
 	main()
