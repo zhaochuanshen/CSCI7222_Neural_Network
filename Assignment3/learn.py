@@ -1,10 +1,6 @@
 import numpy as np
 import random
-<<<<<<< HEAD
 import sys
-=======
-
->>>>>>> 885c4e3f0e9402f69f6f13be1e65d5ea7728c743
 
 def squreError(t, y):
 	# t is the label  and y is the probability
@@ -21,11 +17,7 @@ def cross_entropy(t, y):
 	cost = -np.sum( t * y)
 	gradient = t / y
 	return (cost, gradient)
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> 885c4e3f0e9402f69f6f13be1e65d5ea7728c743
 def softmax(x, theta):
 	# this is activation function
 	temp = np.exp( np.dot(x, theta) )
@@ -69,7 +61,6 @@ def randomInitializeTheta(m, n):
 	theta = 2*theta / t[:, None]
 	return theta
 
-<<<<<<< HEAD
 def sigmoid(x):
 	return 1./(1 + np.exp(-x))
 
@@ -142,8 +133,6 @@ def neutralnetwork(x, y, hiddenlayer = [20], alpha = 5., num_iters = 5000, batch
 	return (theta, error_history)
 
 
-=======
->>>>>>> 885c4e3f0e9402f69f6f13be1e65d5ea7728c743
 def stochasticGradientDescent(x, y, Theta = None, cost_func =squreError,\
  		activation_func=mytanh, alpha = 5, num_iters = 1000, \
 		batchsize = 20, shuffle = True, tol = 1e-4, momentum = True, momentumdecay = 0.9):
@@ -175,9 +164,6 @@ def stochasticGradientDescent(x, y, Theta = None, cost_func =squreError,\
 		error_history.append(cost)
 		if len(error_history) > 2 and np.abs((error_history[-1] - error_history[-2]) / error_history[-1]) < tol:
 			break
-<<<<<<< HEAD
-=======
 		print i,cost
->>>>>>> 885c4e3f0e9402f69f6f13be1e65d5ea7728c743
 	return (theta, error_history)
 	
