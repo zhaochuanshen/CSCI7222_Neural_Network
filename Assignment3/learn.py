@@ -1,6 +1,6 @@
 import numpy as np
 import random
-
+import sys
 
 def squreError(t, y):
 	# t is the label  and y is the probability
@@ -17,7 +17,7 @@ def cross_entropy(t, y):
 	cost = -np.sum( t * y)
 	gradient = t / y
 	return (cost, gradient)
-
+	
 def softmax(x, theta):
 	# this is activation function
 	temp = np.exp( np.dot(x, theta) )
@@ -61,6 +61,78 @@ def randomInitializeTheta(m, n):
 	theta = 2*theta / t[:, None]
 	return theta
 
+def sigmoid(x):
+	return 1./(1 + np.exp(-x))
+
+def nnCostandGradient(x, y, theta):
+	#forward
+	m = float(len(x))
+	ones = np.ones((x.shape[0], 1))
+	a = [np.hstack((ones, x))]
+	z = [None]
+	delta = []
+	for i in xrange( len(theta) - 1 ):
+		z.append(np.dot(a[-1], theta[i]))
+		tempa = sigmoid(z[-1])
+		ones = np.ones((tempa.shape[0],1))
+		tempa = np.hstack((ones, tempa))
+		a.append(tempa)
+	lastz = np.exp( np.dot(a[-1], theta[-1]) )
+	row_sum = np.sum(lastz, axis = 1)
+	lasta = lastz / row_sum[:, None]
+	lastdelta = lasta - y
+	cost = -np.sum(y * np.log(lasta))
+	z.append(lastz)
+	a.append(lasta)
+	delta.append(lastdelta)
+	for i in xrange(len(theta) -1, 0, -1 ) :
+		#tempdelta = theta[i] delta[i] a1
+		tempdelta = np.dot(delta[0], theta[i].T) * a[i] * (1-a[i])
+		delta.insert(0, tempdelta[:, 1:])
+		tempdelta.shape
+	delta.insert(0,None)
+	gradient = []
+	for i in xrange(len(theta)):
+		gradient.append( np.dot(a[i].T, delta[i+1]) / m  )	
+	return (cost, gradient) 
+
+
+def neutralnetwork(x, y, hiddenlayer = [20], alpha = 5., num_iters = 5000, batchsize = 2500,\
+		shuffle = True, tol = 1e-4, momentum = True, momentumdecay = 0.5):
+	# in my nn, the last layer would be softmax activiation and cross entropy cost function
+	# info of hiddenlayer can be stored in the parameters hiddenlayer
+	theta = [randomInitializeTheta(x.shape[1] + 1, hiddenlayer[0])]
+	for i in xrange(1, len(hiddenlayer)):
+		theta.append(randomInitializeTheta(hiddenlayer[i-1] + 1, hiddenlayer[i] ) )
+	theta.append(randomInitializeTheta(hiddenlayer[-1] + 1, y.shape[1]))
+	if len(y) == batchsize:
+		shuffle = False
+	velocity = [0.0 for _ in theta]
+	error_history = []
+	for i in xrange(num_iters):
+		if shuffle:
+			(x, y) = shuffleXYTogether(x, y)
+		for j in xrange( y.shape[0] / batchsize + 1  ):
+			jstart =  j * batchsize
+			jend = min(y.shape[0], (j + 1) * batchsize)
+			if jstart >= y.shape[0]:
+				break
+			(cost, gradient) = nnCostandGradient(x[jstart:jend], y[jstart:jend], theta)
+			if momentum == False:
+				for ii in xrange( len(theta)):
+					theta[ii] = theta[ii] - alpha * gradient[ii]
+			else:
+				for ii in xrange( len(theta)):
+					velocity[ii]= momentumdecay * velocity[ii] - (1.-momentumdecay) * alpha * gradient[ii]
+					theta[ii] = theta[ii] + velocity[ii]						
+		(cost, _) = nnCostandGradient( x, y, theta)
+		error_history.append(cost)	
+		print i, cost
+		#if len(error_history) > 2 and np.abs((error_history[-1] - error_history[-2]) / error_history[-1]) < tol:
+		#	break
+	return (theta, error_history)
+
+
 def stochasticGradientDescent(x, y, Theta = None, cost_func =squreError,\
  		activation_func=mytanh, alpha = 5, num_iters = 1000, \
 		batchsize = 20, shuffle = True, tol = 1e-4, momentum = True, momentumdecay = 0.9):
@@ -92,6 +164,5 @@ def stochasticGradientDescent(x, y, Theta = None, cost_func =squreError,\
 		error_history.append(cost)
 		if len(error_history) > 2 and np.abs((error_history[-1] - error_history[-2]) / error_history[-1]) < tol:
 			break
-		print i,cost
 	return (theta, error_history)
 	
